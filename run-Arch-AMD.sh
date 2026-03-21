@@ -16,7 +16,7 @@ trap cleanup EXIT SIGINT SIGTERM
 # ------------------------------------
 
 # GPU設定
-export HSA_OVERRIDE_GFX_VERSION=11.0.2
+export HSA_OVERRIDE_GFX_VERSION=11.0.0
 export MIOPEN_FIND_MODE=2
 
 # メモリ対策（念のため）
