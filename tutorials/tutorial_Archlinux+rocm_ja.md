@@ -65,7 +65,7 @@ git clone https://github.com/w-okada/voice-changer.git
 ```
 
 
-## ライブラリのインストール
+## 依存関係のインストール
 
 ```bash
 cd software/voice-changer/server
