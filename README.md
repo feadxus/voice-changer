@@ -1,16 +1,16 @@
 [日本語](/README.md) /
-[英語](/docs_i18n/README_en.md) /
-[韓国語](/docs_i18n/README_ko.md)/
-[中国語](/docs_i18n/README_zh.md)/
-[ドイツ語](/docs_i18n/README_de.md)/
-[アラビア語](/docs_i18n/README_ar.md)/
-[ギリシャ語](/docs_i18n/README_el.md)/
-[スペイン語](/docs_i18n/README_es.md)/
-[フランス語](/docs_i18n/README_fr.md)/
-[イタリア語](/docs_i18n/README_it.md)/
-[ラテン語](/docs_i18n/README_la.md)/
-[マレー語](/docs_i18n/README_ms.md)/
-[ロシア語](/docs_i18n/README_ru.md) \*日本語以外は機械翻訳です。
+[English](/docs_i18n/README_en.md) /
+[한국어](/docs_i18n/README_ko.md)/
+[中文](/docs_i18n/README_zh.md)/
+[Deutsch](/docs_i18n/README_de.md)/
+[العربية](/docs_i18n/README_ar.md)/
+[Ελληνικά](/docs_i18n/README_el.md)/
+[Español](/docs_i18n/README_es.md)/
+[Français](/docs_i18n/README_fr.md)/
+[Italiano](/docs_i18n/README_it.md)/
+[Latinum](/docs_i18n/README_la.md)/
+[Bahasa Melayu](/docs_i18n/README_ms.md)/
+[Русский](/docs_i18n/README_ru.md) \*日本語以外は機械翻訳です。
 
 ## VCClient
 

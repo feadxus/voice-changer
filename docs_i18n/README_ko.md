@@ -1,16 +1,16 @@
-[일본어](/README.md) /
-[영어](/docs_i18n/README_en.md) /
+[日本語](/README.md) /
+[English](/docs_i18n/README_en.md) /
 [한국어](/docs_i18n/README_ko.md)/
-[중국어](/docs_i18n/README_zh.md)/
-[독일어](/docs_i18n/README_de.md)/
-[아랍어](/docs_i18n/README_ar.md)/
-[그리스어](/docs_i18n/README_el.md)/
-[스페인어](/docs_i18n/README_es.md)/
-[프랑스어](/docs_i18n/README_fr.md)/
-[이탈리아어](/docs_i18n/README_it.md)/
-[라틴어](/docs_i18n/README_la.md)/
-[말레이어](/docs_i18n/README_ms.md)/
-[러시아어](/docs_i18n/README_ru.md)
+[中文](/docs_i18n/README_zh.md)/
+[Deutsch](/docs_i18n/README_de.md)/
+[العربية](/docs_i18n/README_ar.md)/
+[Ελληνικά](/docs_i18n/README_el.md)/
+[Español](/docs_i18n/README_es.md)/
+[Français](/docs_i18n/README_fr.md)/
+[Italiano](/docs_i18n/README_it.md)/
+[Latinum](/docs_i18n/README_la.md)/
+[Bahasa Melayu](/docs_i18n/README_ms.md)/
+[Русский](/docs_i18n/README_ru.md)
 *일본어 외에는 기계 번역입니다.
 
 ## VCClient

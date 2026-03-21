@@ -1,16 +1,16 @@
-[Bahasa Jepun](/README.md) /
-[Bahasa Inggeris](/docs_i18n/README_en.md) /
-[Bahasa Korea](/docs_i18n/README_ko.md)/
-[Bahasa Cina](/docs_i18n/README_zh.md)/
-[Bahasa Jerman](/docs_i18n/README_de.md)/
-[Bahasa Arab](/docs_i18n/README_ar.md)/
-[Bahasa Greek](/docs_i18n/README_el.md)/
-[Bahasa Sepanyol](/docs_i18n/README_es.md)/
-[Bahasa Perancis](/docs_i18n/README_fr.md)/
-[Bahasa Itali](/docs_i18n/README_it.md)/
-[Bahasa Latin](/docs_i18n/README_la.md)/
+[日本語](/README.md) /
+[English](/docs_i18n/README_en.md) /
+[한국어](/docs_i18n/README_ko.md)/
+[中文](/docs_i18n/README_zh.md)/
+[Deutsch](/docs_i18n/README_de.md)/
+[العربية](/docs_i18n/README_ar.md)/
+[Ελληνικά](/docs_i18n/README_el.md)/
+[Español](/docs_i18n/README_es.md)/
+[Français](/docs_i18n/README_fr.md)/
+[Italiano](/docs_i18n/README_it.md)/
+[Latinum](/docs_i18n/README_la.md)/
 [Bahasa Melayu](/docs_i18n/README_ms.md)/
-[Bahasa Rusia](/docs_i18n/README_ru.md)
+[Русский](/docs_i18n/README_ru.md)
 *Selain bahasa Jepun, semua terjemahan adalah terjemahan mesin.
 
 ## VCClient

@@ -1,16 +1,16 @@
-[اليابانية](/README.md) /
-[الإنجليزية](/docs_i18n/README_en.md) /
-[الكورية](/docs_i18n/README_ko.md)/
-[الصينية](/docs_i18n/README_zh.md)/
-[الألمانية](/docs_i18n/README_de.md)/
+[日本語](/README.md) /
+[English](/docs_i18n/README_en.md) /
+[한국어](/docs_i18n/README_ko.md)/
+[中文](/docs_i18n/README_zh.md)/
+[Deutsch](/docs_i18n/README_de.md)/
 [العربية](/docs_i18n/README_ar.md)/
-[اليونانية](/docs_i18n/README_el.md)/
-[الإسبانية](/docs_i18n/README_es.md)/
-[الفرنسية](/docs_i18n/README_fr.md)/
-[الإيطالية](/docs_i18n/README_it.md)/
-[اللاتينية](/docs_i18n/README_la.md)/
-[الماليزية](/docs_i18n/README_ms.md)/
-[الروسية](/docs_i18n/README_ru.md)
+[Ελληνικά](/docs_i18n/README_el.md)/
+[Español](/docs_i18n/README_es.md)/
+[Français](/docs_i18n/README_fr.md)/
+[Italiano](/docs_i18n/README_it.md)/
+[Latinum](/docs_i18n/README_la.md)/
+[Bahasa Melayu](/docs_i18n/README_ms.md)/
+[Русский](/docs_i18n/README_ru.md)
 *جميع اللغات باستثناء اليابانية مترجمة آليًا.
 
 ## VCClient

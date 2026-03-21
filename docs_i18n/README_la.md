@@ -1,16 +1,16 @@
-[Lingua Iaponica](/README.md) /
-[Lingua Anglica](/docs_i18n/README_en.md) /
-[Lingua Coreana](/docs_i18n/README_ko.md)/
-[Lingua Sinica](/docs_i18n/README_zh.md)/
-[Lingua Theodisca](/docs_i18n/README_de.md)/
-[Lingua Arabica](/docs_i18n/README_ar.md)/
-[Lingua Graeca](/docs_i18n/README_el.md)/
-[Lingua Hispanica](/docs_i18n/README_es.md)/
-[Lingua Francogallica](/docs_i18n/README_fr.md)/
-[Lingua Italica](/docs_i18n/README_it.md)/
-[Lingua Latina](/docs_i18n/README_la.md)/
-[Lingua Malaica](/docs_i18n/README_ms.md)/
-[Lingua Russica](/docs_i18n/README_ru.md)
+[日本語](/README.md) /
+[English](/docs_i18n/README_en.md) /
+[한국어](/docs_i18n/README_ko.md)/
+[中文](/docs_i18n/README_zh.md)/
+[Deutsch](/docs_i18n/README_de.md)/
+[العربية](/docs_i18n/README_ar.md)/
+[Ελληνικά](/docs_i18n/README_el.md)/
+[Español](/docs_i18n/README_es.md)/
+[Français](/docs_i18n/README_fr.md)/
+[Italiano](/docs_i18n/README_it.md)/
+[Latinum](/docs_i18n/README_la.md)/
+[Bahasa Melayu](/docs_i18n/README_ms.md)/
+[Русский](/docs_i18n/README_ru.md)
 *Praeter linguam Iaponicam, omnes linguae sunt a machina translatae.
 
 ## VCClient

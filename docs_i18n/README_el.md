@@ -1,16 +1,16 @@
-[Ιαπωνικά](/README.md) /
-[Αγγλικά](/docs_i18n/README_en.md) /
-[Κορεατικά](/docs_i18n/README_ko.md)/
-[Κινέζικα](/docs_i18n/README_zh.md)/
-[Γερμανικά](/docs_i18n/README_de.md)/
-[Αραβικά](/docs_i18n/README_ar.md)/
+[日本語](/README.md) /
+[English](/docs_i18n/README_en.md) /
+[한국어](/docs_i18n/README_ko.md)/
+[中文](/docs_i18n/README_zh.md)/
+[Deutsch](/docs_i18n/README_de.md)/
+[العربية](/docs_i18n/README_ar.md)/
 [Ελληνικά](/docs_i18n/README_el.md)/
-[Ισπανικά](/docs_i18n/README_es.md)/
-[Γαλλικά](/docs_i18n/README_fr.md)/
-[Ιταλικά](/docs_i18n/README_it.md)/
-[Λατινικά](/docs_i18n/README_la.md)/
-[Μαλαισιανά](/docs_i18n/README_ms.md)/
-[Ρωσικά](/docs_i18n/README_ru.md)
+[Español](/docs_i18n/README_es.md)/
+[Français](/docs_i18n/README_fr.md)/
+[Italiano](/docs_i18n/README_it.md)/
+[Latinum](/docs_i18n/README_la.md)/
+[Bahasa Melayu](/docs_i18n/README_ms.md)/
+[Русский](/docs_i18n/README_ru.md)
 *Οι γλώσσες εκτός των Ιαπωνικών είναι μεταφρασμένες αυτόματα.
 
 ## VCClient
