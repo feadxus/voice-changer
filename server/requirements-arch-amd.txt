@@ -1,3 +1,4 @@
+##requirements for archlinux+amd
 numpy<2.0.0
 scipy==1.10.1
 matplotlib==3.7.1
