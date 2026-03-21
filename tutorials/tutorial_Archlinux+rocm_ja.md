@@ -14,7 +14,7 @@
 
 ## 前提条件
 
-### AMDGPU Driver and ROCm
+### 関連パッケージ
 
 まず、ROCｍとAI関連のパッケージを入れる。
 ```bash
@@ -74,8 +74,11 @@ pip install torch==2.4.1 torchaudio==2.4.1 --index-url https://download.pytorch.
 pip install -r requirements-arch-amd.txt
 ```
 長い長いダウンロードの始まり。
+
 〜〜〜
+
 ダウンロード完了。
+
 
 古いライブラリのセキュリティー設定を変更。Archlinuxの要件に適合する。
 ```bash
@@ -83,8 +86,7 @@ sudo pacman -S patchelf
 find ~/.conda/envs/rvc/lib/ -name "*.so*" -exec patchelf --clear-execstack {} \; 2>/dev/null
 ```
 
-## Start the server
-準備完了、アプリを起動する。
+## 準備完了、アプリを起動する。
 
 ```bash
 export HSA_OVERRIDE_GFX_VERSION=11.0.2
@@ -95,6 +97,8 @@ python MMVCServerSIO.py --rest_port 18888 --use_gpu
 
 http://127.0.0.1:18888/. 
 これで、WEB GUI は開けるはず。
+
+メインのフォルダに run-Arch-AMD.sh のスクリプトも入れました、これからそちらも使えます。
 
 ![image](images/Arch+amd.png)
 
@@ -132,4 +136,5 @@ systemctl --user daemon-reload
 systemctl --user enable --now virtual-audio.service
 ```
 wine 関連の設定はテストできないため、割愛する。
-一応、ProtonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。
+
+一応、ProtonGe環境のVRchatはそのままでも仮想ケーブルを認認識できるrotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。rotonGe環境のVRchatはそのままでも仮想ケーブルを認識できる。
