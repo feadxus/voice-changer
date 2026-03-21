@@ -3,7 +3,9 @@
 ## 始め
 
 チュートリアルの更新になります。（2026/03/21時点）
+
 主は依存関係と仮想ケーブルを改訂しました。
+
 依存関係の最適化はしていないが、アプリを走ることに問題ありません。
 
 **テスト環境：**
@@ -85,7 +87,7 @@ find ~/.conda/envs/rvc/lib/ -name "*.so*" -exec patchelf --clear-execstack {} \;
 準備完了、アプリを起動する。
 
 ```bash
-export HSA_OVERRIDE_GFX_VERSION=11.0.0
+export HSA_OVERRIDE_GFX_VERSION=11.0.2
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib/python3.10/site-packages/torch/lib:$LD_LIBRARY_PATH##互換性維持
 python MMVCServerSIO.py --rest_port 18888 --use_gpu
 ```
