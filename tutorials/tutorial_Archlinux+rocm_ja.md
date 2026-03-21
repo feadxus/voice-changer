@@ -94,7 +94,7 @@ python MMVCServerSIO.py --rest_port 18888 --use_gpu
 
 
 http://127.0.0.1:18888/. 
-それでは、WEB GUI は開けるはず。
+これで、WEB GUI は開けるはず。
 
 ![image](images/Arch+amd.png)
 
