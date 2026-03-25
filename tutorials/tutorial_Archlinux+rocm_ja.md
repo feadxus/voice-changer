@@ -16,7 +16,7 @@
 
 ### 関連パッケージ
 
-まず、ROCｍとAI関連のパッケージを入れる。
+まず、ROCｍと音声関連のパッケージを入れる。
 ```bash
 sudo pacman -S rocm-hip-sdk rocm-opencl-sdk rocminfo rocm-smi-lib ffmpeg git
 ```
