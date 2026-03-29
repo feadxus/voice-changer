@@ -68,7 +68,7 @@ git clone https://github.com/w-okada/voice-changer.git
 ## 依存関係のインストール
 
 ```bash
-cd software/voice-changer/server
+cd ~/software/voice-changer/server
 pip install "pip<24.1" "setuptools<70" ##互換性維持
 pip install torch==2.4.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/rocm6.0
 pip install -r requirements-arch-amd.txt
@@ -83,7 +83,7 @@ pip install -r requirements-arch-amd.txt
 古いライブラリのセキュリティー設定を変更。Archlinuxの要件に適合する。
 ```bash
 sudo pacman -S patchelf
-find ~/.conda/envs/rvc/lib/ -name "*.so*" -exec patchelf --clear-execstack {} \; 2>/dev/null
+find $CONDA_PREFIX/lib/ -name "*.so*" -exec patchelf --clear-execstack {} \; 2>/dev/null
 ```
 
 ## 準備完了、アプリを起動する。
