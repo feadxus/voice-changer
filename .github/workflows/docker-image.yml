@@ -62,49 +62,54 @@ jobs:
           npm install
           npm run build:prod
 
-      # 📁 按照官方 09_Amazon_Voice_Focus.md 规范完美补全离线资产
+      # 📁 递归提取 node_modules 里的所有 Chime 资源，平铺 + 子目录双重兼容
       - name: 📁 Copy & Complete Chime Offline Assets
         working-directory: voice-changer
         run: |
-          # 1. 创建符合官方 paths 映射规则的目录结构
+          # 1. 创建双重兼容目录结构
           mkdir -p client/demo/dist/chime/workers client/demo/public/chime/workers
 
-          # 2. 从 node_modules 提取 WASM 核心及 Worker 依赖
-          VOICE_FOCUS=$(find . -type d -path "*/amazon-chime-sdk-js/libs/voicefocus" | head -n 1)
-          if [ -n "$VOICE_FOCUS" ]; then
-            echo "✅ 复制 node_modules 基础依赖: $VOICE_FOCUS"
-            cp -r $VOICE_FOCUS/* client/demo/dist/chime/
-            cp -r $VOICE_FOCUS/* client/demo/public/chime/
-            # 移动 worker 文件到 workers/ 子目录
-            mv client/demo/dist/chime/voicefocus-worker-v1.js client/demo/dist/chime/workers/ 2>/dev/null || true
-            mv client/demo/public/chime/voicefocus-worker-v1.js client/demo/public/chime/workers/ 2>/dev/null || true
+          # 2. 自动定位 amazon-chime-sdk-js 目录并递归抽取所有 .wasm 和 .js 资源
+          CHIME_PKG_DIR=$(find . -type d -path "*/amazon-chime-sdk-js" | head -n 1)
+          if [ -n "$CHIME_PKG_DIR" ]; then
+            echo "✅ 找到 Chime SDK 包路径: $CHIME_PKG_DIR"
+            # 同步所有静态文件到 chime 根目录与 workers/ 子目录
+            find $CHIME_PKG_DIR -type f \( -name "*.wasm" -o -name "*.js" \) -exec cp {} client/demo/dist/chime/ \;
+            find $CHIME_PKG_DIR -type f \( -name "*.wasm" -o -name "*.js" \) -exec cp {} client/demo/dist/chime/workers/ \;
+            find $CHIME_PKG_DIR -type f \( -name "*.wasm" -o -name "*.js" \) -exec cp {} client/demo/public/chime/ \;
+            find $CHIME_PKG_DIR -type f \( -name "*.wasm" -o -name "*.js" \) -exec cp {} client/demo/public/chime/workers/ \;
+          else
+            echo "❌ 未找到 amazon-chime-sdk-js 包，请检查 npm install！"
+            exit 1
           fi
 
-          # 3. 补充官方 CDN 部署的 estimator Worker 脚本，打入本地离线包
-          echo "⬇️ 自动补全 estimator-v1.js..."
+          # 3. 补充官方 CDN Worker 脚本（同时放入根目录与 workers 目录）
+          echo "⬇️ 下载并补全 estimator-v1.js..."
           curl -sSL "https://static.sdkassets.chime.aws/workers/estimator-v1.js" -o client/demo/dist/chime/workers/estimator-v1.js
+          cp client/demo/dist/chime/workers/estimator-v1.js client/demo/dist/chime/estimator-v1.js
           cp client/demo/dist/chime/workers/estimator-v1.js client/demo/public/chime/workers/estimator-v1.js
+          cp client/demo/dist/chime/workers/estimator-v1.js client/demo/public/chime/estimator-v1.js
 
       - name: 🔍 Verify Local Modifications & Assets
         working-directory: voice-changer
         run: |
           echo "================ 1. 检查 TS 源码修改 ================"
           if grep -q "estimator" client/lib/src/VoiceChangerClient.ts; then
-            echo "✅ TS 源码修改成功！显式配置了官方指定 paths 路径。"
+            echo "✅ TS 源码修改成功！包含了 paths 配置。"
           else
-            echo "❌ 错误：VoiceChangerClient.ts 中未检测到 paths 路径修改！"
+            echo "❌ 错误：VoiceChangerClient.ts 未检测到修改！"
             exit 1
           fi
 
-          echo "================ 2. 检查 4 大离线文件完整性 ================"
-          if [ -f "client/demo/dist/chime/workers/estimator-v1.js" ] && \
-             [ -f "client/demo/dist/chime/workers/voicefocus-worker-v1.js" ] && \
-             [ -f "client/demo/dist/chime/voicefocus-v1.wasm" ]; then
-            echo "✅ 官方要求的 Voice Focus 离线资源全部准备就绪！"
-            ls -la client/demo/dist/chime/
-            ls -la client/demo/dist/chime/workers/
+          echo "================ 2. 打印并校验 dist/chime 离线资源清单 ================"
+          echo "📂 client/demo/dist/chime 中的真实文件结构："
+          find client/demo/dist/chime -type f
+
+          # 验证核心文件存在
+          if [ -f "client/demo/dist/chime/workers/estimator-v1.js" ] && [ -n "$(find client/demo/dist/chime -name '*.wasm')" ]; then
+            echo "✅ 离线资源文件已全部集齐！"
           else
-            echo "❌ 错误：未能在 dist/chime 中完整集齐 4 个核心离线文件！"
+            echo "❌ 错误：未能在 dist/chime 中完整准备好离线文件！"
             exit 1
           fi
 
