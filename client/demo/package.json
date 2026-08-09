@@ -4,8 +4,9 @@
     "description": "",
     "main": ".eslintrc.js",
     "scripts": {
+        "postinstall": "node download-chime-assets.js",
+        "copy:chime": "cpx2 \"node_modules/amazon-chime-sdk-js/libs/voicefocus/**/*\" public/chime",
         "clean": "rimraf dist/",
-        "copy:chime": "cpx \"node_modules/amazon-chime-sdk-js/libs/voicefocus/**/*\" public/chime",
         "webpack:prod": "npx webpack --config webpack.prod.js",
         "webpack:dev": "npx webpack --config webpack.dev.js",
         "build:prod": "npm-run-all copy:chime clean webpack:prod",
@@ -20,7 +21,7 @@
         "webpack:web:prod": "npx webpack --config webpack_web.prod.js && copy .\\public\\info_web .\\dist_web\\info && copy .\\public\\assets\\gui_settings\\edition_web.txt .\\dist_web\\assets\\gui_settings\\edition.txt",
         "webpack:web:dev": "npx webpack --config webpack_web.dev.js && copy .\\public\\info_web .\\dist_web\\info && copy .\\public\\assets\\gui_settings\\edition_web.txt .\\dist_web\\assets\\gui_settings\\edition.txt",
         "build:web:prod": "npm-run-all copy:chime clean:web webpack:web:prod",
-        "build:web:dev": "npm-run-all copy:chime clean:web webpack:web:dev",
+        "build:web:dev": "npm-run-all copy:chime clean:web webpack_web.dev.js",
         "start:web": "npm run copy:chime && webpack-dev-server --config webpack_web.dev.js"
     },
     "keywords": [
