@@ -86,6 +86,7 @@ export class VoiceChangerClient {
                         worker: "/chime/workers/voicefocus-worker-v1.js",
                         wasm: "/chime/voicefocus-v1.wasm",
                         simdWasm: "/chime/voicefocus-v1-simd.wasm",
+                        model: '/chime/wasm/voicefocus-v1.json',
                     } as any
                 });
                 const dummyMediaStream = createDummyMediaStream(this.ctx);
