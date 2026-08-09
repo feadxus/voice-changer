@@ -85,7 +85,7 @@ jobs:
         working-directory: voice-changer
         run: |
           echo "================ 1. 检查 VoiceChangerClient.ts 源码修改 ================"
-          if grep -qE "assetGroup|paths" client/lib/src/VoiceChangerClient.ts; then
+          if grep -qE "paths|assetGroup" client/lib/src/VoiceChangerClient.ts; then
             echo "✅ TS 源码修改成功！包含了本地路径/assetGroup 配置。"
           else
             echo "❌ 错误：VoiceChangerClient.ts 未检测到修改！"
