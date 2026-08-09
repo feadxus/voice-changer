@@ -7,7 +7,6 @@
         "lib": "lib"
     },
     "scripts": {
-        "postinstall": "node download-chime-assets.js",
         "clean:worklet": "rimraf worklet/dist/",
         "webpack:worklet:dev": "webpack --config webpack.worklet.dev.js",
         "webpack:worklet:prod": "webpack --config webpack.worklet.prod.js",
