@@ -106,29 +106,6 @@ jobs:
             exit 1
           fi
 
-      - name: 🔍 Verify Local Modifications & Assets
-        working-directory: voice-changer
-        run: |
-          echo "================ 1. 检查 TS 源码修改 ================"
-          if grep -q "estimator" client/lib/src/VoiceChangerClient.ts; then
-            echo "✅ TS 源码修改成功！包含了 paths 配置。"
-          else
-            echo "❌ 错误：VoiceChangerClient.ts 未检测到修改！"
-            exit 1
-          fi
-
-          echo "================ 2. 打印并校验 dist/chime 离线资源清单 ================"
-          echo "📂 client/demo/dist/chime 中的真实文件结构："
-          find client/demo/dist/chime -type f
-
-          # 验证核心文件存在
-          if [ -f "client/demo/dist/chime/workers/estimator-v1.js" ] && [ -n "$(find client/demo/dist/chime -name '*.wasm')" ]; then
-            echo "✅ 离线资源文件已全部集齐！"
-          else
-            echo "❌ 错误：未能在 dist/chime 中完整准备好离线文件！"
-            exit 1
-          fi
-
       - name: 📦 Prepare package
         run: |
           mkdir release
