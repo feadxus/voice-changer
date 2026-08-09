@@ -75,9 +75,10 @@ jobs:
           fi
 
           echo "================ 2. 检查 Chime 本地静态资源拷贝 ================"
-          if [ -f "client/demo/public/chime/estimator-v1.js" ] || [ -f "client/demo/dist/chime/estimator-v1.js" ]; then
+          # 修改为使用 find 递归查找，兼容 workers/ 子目录结构
+          if [ -n "$(find client/demo/public/chime client/demo/dist/chime -name 'estimator-v1.js' 2>/dev/null)" ]; then
             echo "✅ Chime 静态资源成功拷贝到了本地 chime 目录！"
-            ls -la client/demo/public/chime/ || ls -la client/demo/dist/chime/
+            find client/demo/public/chime client/demo/dist/chime -name "estimator-v1.js"
           else
             echo "❌ 错误：未在 public/chime 或 dist/chime 找到 estimator-v1.js 文件！"
             exit 1
@@ -87,7 +88,7 @@ jobs:
           if grep -q "estimator-v1.js" client/demo/dist/index.js; then
             echo "✅ 编译后的前端 dist/index.js 已引入本地路径！"
           else
-            echo "⚠️ 警告：编译产物中未搜到 estimator-v1.js 字符串，请确认编译是否包含了最新的 client/lib！"
+            echo "⚠️ 警告：编译产物中未直接搜索到 estimator-v1.js 字符串，属于正常现象（内部通过路径拼接）。"
           fi
 
       - name: 📦 Prepare package
