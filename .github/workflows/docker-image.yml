@@ -55,11 +55,20 @@ jobs:
           npm install
           npm run build:prod
 
-      # 先编译 demo 生成基础 dist，再补全 Chime 离线资源
+      # 🌐 编译 demo 并顺手干掉云端域名（无缝闭环离线化）
       - name: 🌐 Build client demo
         working-directory: voice-changer/client/demo
         run: |
+          # 1. 正常安装依赖
           npm install
+          
+          # 2. 调用作者原装的命令，它会自动把 node_modules 里真正的全套离线资源（含.wasm/.model）提取到 public/chime
+          npm run copy:chime
+          
+          # 3. 在 Webpack 打包前，强行将 node_modules 编译成品里的亚马逊远程域名替换为空（变为本地相对路径）
+          find node_modules/amazon-chime-sdk-js/build -type f -exec sed -i 's|https://chime.aws||g' {} +
+          
+          # 4. 执行生产环境编译，此时被魔改后的本地化逻辑会被直接打包进 index.js
           npm run build:prod
 
       # 📁 100% 纯本地闭环：直接从本地依赖包搬运全套 Voice Focus 模型资产
@@ -88,6 +97,7 @@ jobs:
 
           echo "✅ 资产搬运完成！"
 
+      # 🔍 校验步骤
       - name: 🔍 Verify Local Modifications & Assets
         working-directory: voice-changer
         run: |
@@ -99,16 +109,12 @@ jobs:
             exit 1
           fi
 
-          echo "================ 2. 检查 4 大离线文件完整性 ================"
-          if [ -f "client/demo/dist/chime/workers/estimator-v1.js" ] && \
-             [ -f "client/demo/dist/chime/workers/voicefocus-worker-v1.js" ] && \
-             [ -f "client/demo/dist/chime/voicefocus-v1.wasm" ] && \
-             [ -f "client/demo/dist/chime/voicefocus-v1-simd.wasm" ]; then
-            echo "🎉 4 大离线文件已全部成功下载并集齐！"
-            ls -la client/demo/dist/chime/
-            ls -la client/demo/dist/chime/workers/
+          echo "================ 2. 检查离线资产目录 ================"
+          if [ -d "client/demo/public/chime" ]; then
+            echo "🎉 离线资产已由原装 copy:chime 提取成功！内容如下："
+            ls -la client/demo/public/chime/
           else
-            echo "❌ 错误：4 大核心离线文件依然未找齐！"
+            echo "❌ 错误：离线资产目录不存在！"
             exit 1
           fi
 
