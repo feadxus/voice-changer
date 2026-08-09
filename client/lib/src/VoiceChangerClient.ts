@@ -81,7 +81,12 @@ export class VoiceChangerClient {
             if (this.vfEnable) {
                 this.vf = await VoiceFocusDeviceTransformer.create({ 
                     variant: "c20",
-                    assetGroup: "/chime"
+                    paths: {
+                        estimator: "/chime/workers/estimator-v1.js",
+                        worker: "/chime/workers/voicefocus-worker-v1.js",
+                        wasm: "/chime/voicefocus-v1.wasm",
+                        simdWasm: "/chime/voicefocus-v1-simd.wasm",
+                    } as any
                 });
                 const dummyMediaStream = createDummyMediaStream(this.ctx);
                 this.currentDevice = (await this.vf.createTransformDevice(dummyMediaStream)) || null;
