@@ -49,29 +49,30 @@ jobs:
           pip install -r requirements.txt
           pip cache purge
 
+      # 1. 先编译底层的基础核心库 lib
       - name: 🌐 Build client lib
         working-directory: voice-changer/client/lib
         run: |
           npm install
           npm run build:prod
 
-      # 🌐 编译 demo 并顺手干掉云端域名（100% 完美闭环）
-      - name: 🌐 Build client demo
+      # 2. 再编译包含界面的网页端应用程序 demo
+      - name: 🌐 Build and Localize client demo
         working-directory: voice-changer/client/demo
         run: |
-          # 1. 执行安装（安装完成后会自动触发 postinstall 脚本，安全抓取全套离线文件和 AI 大模型）
+          # 执行安装，此时会自动触发上面的 postinstall 脚本，安全抓取全套 7 个离线大模型
           npm install
           
-          # 2. 调用作者原装的命令（补全基础依赖包）
+          # 运行作者原装的命令，建立基础依赖混入
           npm run copy:chime
           
-          # 3. 🚨 修正关键：强行将 node_modules 里的亚马逊【完整官方域名】替换为空（变成本地相对路径 /chime/）
+          # 🚨 纠错核心：强行拦截 demo 模块引用的官方 Chime 域名，使其重定向到本地相对路径
           find node_modules/amazon-chime-sdk-js/build -type f -exec sed -i 's|https://chime.aws||g' {} +
           
-          # 4. 执行生产环境编译，将本地化路径直接打包进 index.js
+          # 正式执行打包编译，把离线逻辑完美注入 index.js
           npm run build:prod
 
-      # 🔍 严苛的自动化闭环校验
+      # 3. 自动化闭环校验（绝不容忍空气包）
       - name: 🔍 Verify Local Modifications & Assets
         working-directory: voice-changer
         run: |
@@ -83,15 +84,14 @@ jobs:
             exit 1
           fi
 
-          echo "================ 2. 检查 7 大离线资产完整性 ================"
-          # 验证刚才 download-chime-assets.js 是否把真正的文件（非空气）安全注入到了项目的 public 目录
+          echo "================ 2. 检查 7 大离线文件完整性 ================"
           if [ -f "client/demo/public/chime/voicefocus-v1.model" ] && \
              [ -f "client/demo/public/chime/estimator-v1.js" ] && \
              [ -f "client/demo/public/chime/voicefocus-v1.json" ]; then
-            echo "🎉 绝密大模型与 Worker 脚本已完美合体，离线化 100% 闭环成功！"
+            echo "🎉 真正的 AI 大模型与 Worker 脚本已全部在 public/chime 物理集齐！"
             ls -la client/demo/public/chime/
           else
-            echo "❌ 错误：模型依然没有被注入成功，请检查 client/demo/download-chime-assets.js 的执行情况！"
+            echo "❌ 错误：离线资产依然缺失，闭环失败！"
             exit 1
           fi
 
