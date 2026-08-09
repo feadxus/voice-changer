@@ -61,29 +61,32 @@ jobs:
           npm install
           npm run build:prod
 
-      # 先编译完成 demo 生成 dist，再注入 Chime 离线资源，防止被 clean 清空
-      - name: 📁 Copy & Complete Chime Assets
+      # 📁 替换后的纯本地资源提取步骤（剔除 curl）
+      - name: 📁 Copy Chime Assets (100% Offline)
         working-directory: voice-changer
         run: |
           mkdir -p client/demo/dist/chime/workers client/demo/public/chime/workers
-          
-          CHIME_DIR=$(find . -type d -path "*/amazon-chime-sdk-js/libs/voicefocus" | head -n 1)
-          if [ -n "$CHIME_DIR" ]; then
-            echo "✅ 拷贝 node_modules 核心依赖文件: $CHIME_DIR"
-            cp -r $CHIME_DIR/* client/demo/dist/chime/
-            cp -r $CHIME_DIR/* client/demo/public/chime/
-          fi
 
-          echo "⬇️ 自动补全 estimator-v1.js 离线资源..."
-          curl -sSL "https://static.sdkassets.chime.aws/workers/estimator-v1.js" -o client/demo/dist/chime/workers/estimator-v1.js
-          cp client/demo/dist/chime/workers/estimator-v1.js client/demo/public/chime/workers/estimator-v1.js
+          SYS_WORKERS=$(find . -type d -path "*/amazon-chime-sdk-js/sys/workers" | head -n 1)
+          VOICE_FOCUS=$(find . -type d -path "*/amazon-chime-sdk-js/libs/voicefocus" | head -n 1)
+
+          if [ -n "$SYS_WORKERS" ] && [ -n "$VOICE_FOCUS" ]; then
+            cp -r $SYS_WORKERS/* client/demo/dist/chime/workers/
+            cp -r $SYS_WORKERS/* client/demo/public/chime/workers/
+            cp -r $VOICE_FOCUS/* client/demo/dist/chime/
+            cp -r $VOICE_FOCUS/* client/demo/public/chime/
+            echo "✅ 已成功从本地 node_modules 提取全套 Chime 离线资源！"
+          else
+            echo "❌ 未找到 Chime 资源目录，请检查 npm install 状态"
+            exit 1
+          fi
 
       - name: 🔍 Verify Local Modifications & Assets
         working-directory: voice-changer
         run: |
           echo "================ 1. 检查 VoiceChangerClient.ts 源码修改 ================"
-          if grep -q "assetGroup" client/lib/src/VoiceChangerClient.ts; then
-            echo "✅ TS 源码修改成功！包含了 assetGroup 配置。"
+          if grep -qE "assetGroup|paths" client/lib/src/VoiceChangerClient.ts; then
+            echo "✅ TS 源码修改成功！包含了本地路径/assetGroup 配置。"
           else
             echo "❌ 错误：VoiceChangerClient.ts 未检测到修改！"
             exit 1
