@@ -67,7 +67,7 @@ jobs:
           npm run copy:chime
           
           # 🚨 纠错核心：强行拦截 demo 模块引用的官方 Chime 域名，使其重定向到本地相对路径
-          find node_modules/amazon-chime-sdk-js/build -type f -exec sed -i 's|https://chime.aws||g' {} +
+          find node_modules/amazon-chime-sdk-js/build -type f -exec sed -i 's|https://static.sdkassets.chime.aws||g' {} +
           
           # 正式执行打包编译，把离线逻辑完美注入 index.js
           npm run build:prod
