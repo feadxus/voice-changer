@@ -86,6 +86,6 @@ async function main() {
         }
     }
     
-    console.log(`\n🎉 离线化阶段完成！本地已融合成套的模型与加速包。`);
+    console.log(`\n🎉 离线化阶段完成!本地已融合成套的模型与加速包.`);
 }
 main();
