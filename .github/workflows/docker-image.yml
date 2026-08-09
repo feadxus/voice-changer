@@ -62,33 +62,49 @@ jobs:
           npm install
           npm run build:prod
 
-      # 📁 递归提取 node_modules 里的所有 Chime 资源，平铺 + 子目录双重兼容
-      - name: 📁 Copy & Complete Chime Offline Assets
+      # 📁 构建期下载全套 Voice Focus 离线资源并打包
+      - name: 📁 Download & Package Chime Offline Assets
         working-directory: voice-changer
         run: |
-          # 1. 创建双重兼容目录结构
+          # 1. 重置目录结构
+          rm -rf client/demo/dist/chime client/demo/public/chime
           mkdir -p client/demo/dist/chime/workers client/demo/public/chime/workers
 
-          # 2. 自动定位 amazon-chime-sdk-js 目录并递归抽取所有 .wasm 和 .js 资源
-          CHIME_PKG_DIR=$(find . -type d -path "*/amazon-chime-sdk-js" | head -n 1)
-          if [ -n "$CHIME_PKG_DIR" ]; then
-            echo "✅ 找到 Chime SDK 包路径: $CHIME_PKG_DIR"
-            # 同步所有静态文件到 chime 根目录与 workers/ 子目录
-            find $CHIME_PKG_DIR -type f \( -name "*.wasm" -o -name "*.js" \) -exec cp {} client/demo/dist/chime/ \;
-            find $CHIME_PKG_DIR -type f \( -name "*.wasm" -o -name "*.js" \) -exec cp {} client/demo/dist/chime/workers/ \;
-            find $CHIME_PKG_DIR -type f \( -name "*.wasm" -o -name "*.js" \) -exec cp {} client/demo/public/chime/ \;
-            find $CHIME_PKG_DIR -type f \( -name "*.wasm" -o -name "*.js" \) -exec cp {} client/demo/public/chime/workers/ \;
+          # 2. 从 AWS 官方静态源抓取 4 大 Voice Focus 核心文件
+          BASE_URL="https://static.sdkassets.chime.aws"
+          
+          echo "⬇️ 开始下载 4 大 Voice Focus 核心离线文件..."
+          curl -sSL "$BASE_URL/workers/estimator-v1.js" -o client/demo/dist/chime/workers/estimator-v1.js
+          curl -sSL "$BASE_URL/workers/voicefocus-worker-v1.js" -o client/demo/dist/chime/workers/voicefocus-worker-v1.js
+          curl -sSL "$BASE_URL/wasm/voicefocus-v1.wasm" -o client/demo/dist/chime/voicefocus-v1.wasm
+          curl -sSL "$BASE_URL/wasm/voicefocus-v1-simd.wasm" -o client/demo/dist/chime/voicefocus-v1-simd.wasm
+
+          # 3. 同步到 public 目录
+          cp -r client/demo/dist/chime/* client/demo/public/chime/
+
+      - name: 🔍 Verify Local Modifications & Assets
+        working-directory: voice-changer
+        run: |
+          echo "================ 1. 检查 TS 源码修改 ================"
+          if grep -q "estimator" client/lib/src/VoiceChangerClient.ts; then
+            echo "✅ TS 源码修改成功！"
           else
-            echo "❌ 未找到 amazon-chime-sdk-js 包，请检查 npm install！"
+            echo "❌ 错误：VoiceChangerClient.ts 未检测到 paths 修改！"
             exit 1
           fi
 
-          # 3. 补充官方 CDN Worker 脚本（同时放入根目录与 workers 目录）
-          echo "⬇️ 下载并补全 estimator-v1.js..."
-          curl -sSL "https://static.sdkassets.chime.aws/workers/estimator-v1.js" -o client/demo/dist/chime/workers/estimator-v1.js
-          cp client/demo/dist/chime/workers/estimator-v1.js client/demo/dist/chime/estimator-v1.js
-          cp client/demo/dist/chime/workers/estimator-v1.js client/demo/public/chime/workers/estimator-v1.js
-          cp client/demo/dist/chime/workers/estimator-v1.js client/demo/public/chime/estimator-v1.js
+          echo "================ 2. 检查 4 大离线文件完整性 ================"
+          if [ -f "client/demo/dist/chime/workers/estimator-v1.js" ] && \
+             [ -f "client/demo/dist/chime/workers/voicefocus-worker-v1.js" ] && \
+             [ -f "client/demo/dist/chime/voicefocus-v1.wasm" ] && \
+             [ -f "client/demo/dist/chime/voicefocus-v1-simd.wasm" ]; then
+            echo "🎉 4 大离线文件已全部成功下载并集齐！"
+            ls -la client/demo/dist/chime/
+            ls -la client/demo/dist/chime/workers/
+          else
+            echo "❌ 错误：4 大核心离线文件依然未找齐！"
+            exit 1
+          fi
 
       - name: 🔍 Verify Local Modifications & Assets
         working-directory: voice-changer
