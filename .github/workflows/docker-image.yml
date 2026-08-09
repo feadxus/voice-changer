@@ -71,6 +71,12 @@ jobs:
           
           # 正式执行打包编译，把离线逻辑完美注入 index.js
           npm run build:prod
+          # 🚨 终极闭环置换：把官方云端域名，强行置换为本地相对路径 '/chime' 
+          # 这样转换后：'https://chime.aws...' 
+          # 会被完美魔改成：'/chime/workers/...'，刚好对齐你的本地存放路径！
+          find node_modules -type f \( -name "*.js" -o -name "*.json" \) -exec sed -i 's|https://static.sdkassets.chime.aws|/chime|g' {} +
+          find ../lib/dist -type f \( -name "*.js" -o -name "*.json" \) -exec sed -i 's|https://static.sdkassets.chime.aws|/chime|g' {} +
+
 
       # 🔍 自动化闭环校验
       - name: 🔍 Verify Local Modifications & Assets
