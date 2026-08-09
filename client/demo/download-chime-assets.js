@@ -5,12 +5,12 @@ const https = require('https');
 const TARGET_DIR = path.join(__dirname, 'public', 'chime');
 const BASE_URL = 'https://static.sdkassets.chime.aws';
 
-// 💡 离线资产大扫描清单（将所有可能的新老版命名，分为带参数和不带参数的下载尝试）
+// 💡 离线资产大扫描清单(将所有可能的新老版命名,分为带参数和不带参数的下载尝试)
 const filesToDownload = [
     { source: '/workers/estimator-v1.js', output: 'estimator-v1.js', useParams: true },
     { source: '/workers/voicefocus-worker-v1.js', output: 'voicefocus-worker-v1.js', useParams: true },
     { source: '/workers/voicefocus-worker.js', output: 'voicefocus-worker.js', useParams: true },
-    // WASM 和大模型必须使用纯净 URL（useParams: false）来绕过 AWS 的 400 拦截
+    // WASM 和大模型必须使用纯净 URL（useParams:false）来绕过 AWS 的 400 拦截
     { source: '/wasm/voicefocus-v1.wasm', output: 'voicefocus-v1.wasm', useParams: false },
     { source: '/wasm/voicefocus.wasm', output: 'voicefocus.wasm', useParams: false },
     { source: '/wasm/voicefocus-v1-simd.wasm', output: 'voicefocus-v1-simd.wasm', useParams: false },
@@ -27,7 +27,7 @@ function downloadFile(sourcePath, outputPath, useParams) {
     return new Promise((resolve) => {
         fs.mkdirSync(path.dirname(outputPath), { recursive: true });
         
-        // 动态拼接：如果 useParams 为 true 则带上校验后缀，否则使用完全纯净的请求避免 400 错误
+        // 动态拼接:如果 useParams 为 true 则带上校验后缀,否则使用完全纯净的请求避免 400 错误
         const querySuffix = useParams ? '?sdk=3.20.0&ua=chrome-140&assetGroup=sdk-3.20' : '';
         const fullUrl = `${BASE_URL}${sourcePath}${querySuffix}`;
 
@@ -40,7 +40,7 @@ function downloadFile(sourcePath, outputPath, useParams) {
                 }
 
                 if (response.statusCode !== 200) {
-                    // 无论是 404 还是 400，一律判定当前格式失效，优雅跳过，寻找备用格式
+                    // 无论是 404 还是 400,一律判定当前格式失效,优雅跳过,寻找备用格式
                     return resolve('FAIL');
                 }
 
@@ -63,18 +63,18 @@ function downloadFile(sourcePath, outputPath, useParams) {
 async function main() {
     console.log('🚀 启动 Chime 资产自动离线补全（智能自适应绕过版）...');
     
-    // 💡 第一路兜底：先从本地依赖包里捞现成的文件，把基础目录填饱，确保不留任何空白
+    // 💡 第一路兜底:先从本地依赖包里捞现成的文件,把基础目录填饱,确保不留任何空白
     try {
         const localSource = path.resolve(__dirname, 'node_modules', 'amazon-chime-sdk-js', 'libs', 'voicefocus');
         if (fs.existsSync(localSource)) {
-            console.log('📦 检测到本地内置文件，正在释放基础资产...');
+            console.log('📦 检测到本地内置文件,正在释放基础资产...');
             fs.cpSync(localSource, TARGET_DIR, { recursive: true });
         }
     } catch (e) {
-        console.log('⚠️ 本地提取略过，转向全外网扫描...');
+        console.log('⚠️ 本地提取略过,转向全外网扫描...');
     }
 
-    // 💡 第二路：全版本云端自动探针
+    // 💡 第二路:全版本云端自动探针
     let downloadedCount = 0;
     for (const file of filesToDownload) {
         const fullOutputPath = path.join(TARGET_DIR, file.output);
