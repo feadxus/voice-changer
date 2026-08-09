@@ -60,22 +60,21 @@ jobs:
       - name: 🌐 Build and Localize client demo
         working-directory: voice-changer/client/demo
         run: |
-          # 执行安装，此时会自动触发上面的 postinstall 脚本，安全抓取全套 7 个离线大模型
+          # 1. 执行安装，此时会自动触发上面的 postinstall 脚本，安全抓取全套 7 个离线大模型
           npm install
           
-          # 运行作者原装的命令，建立基础依赖混入
+          # 2. 运行作者原装的命令，建立基础依赖混入
           npm run copy:chime
           
-          # 🚨 纠错核心：强行拦截 demo 模块引用的官方 Chime 域名，使其重定向到本地相对路径
-          find node_modules/amazon-chime-sdk-js/build -type f -exec sed -i 's|https://static.sdkassets.chime.aws||g' {} +
-          
-          # 正式执行打包编译，把离线逻辑完美注入 index.js
-          npm run build:prod
-          # 🚨 终极闭环置换：把官方云端域名，强行置换为本地相对路径 '/chime' 
-          # 这样转换后：'https://chime.aws...' 
-          # 会被完美魔改成：'/chime/workers/...'，刚好对齐你的本地存放路径！
+          # 🚨 3. 终极闭环置换（必须在打包前执行！）：把官方云端域名，强行置换为本地相对路径 '/chime'
+          # 这样转换后：'https://chime.aws...'
+          # 会被完美魔改成：'/chime/workers/...'，刚好像素级对齐你的本地存放路径！
           find node_modules -type f \( -name "*.js" -o -name "*.json" \) -exec sed -i 's|https://static.sdkassets.chime.aws|/chime|g' {} +
           find ../lib/dist -type f \( -name "*.js" -o -name "*.json" \) -exec sed -i 's|https://static.sdkassets.chime.aws|/chime|g' {} +
+          
+          # 4. 正式执行打包编译！此时被完美魔改后的本地化路径会被直接、永久地烧录进最终的 index.js
+          npm run build:prod
+
 
 
       # 🔍 自动化闭环校验
