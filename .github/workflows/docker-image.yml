@@ -55,6 +55,42 @@ jobs:
           npm install
           npm run build:prod
 
+      # ➕ 新增：自动精准搜索 node_modules 中的 Chime 资源并一键同步到产物目录
+      - name: 📁 Copy Chime Assets
+        working-directory: voice-changer
+        run: |
+          mkdir -p client/demo/dist/chime client/demo/public/chime
+          # 自动在 node_modules 中定位 voicefocus 资源目录
+          CHIME_DIR=$(find . -type d -path "*/amazon-chime-sdk-js/libs/voicefocus" | head -n 1)
+          if [ -n "$CHIME_DIR" ]; then
+            echo "✅ 找到了 Chime 静态资源路径: $CHIME_DIR"
+            cp -r $CHIME_DIR/* client/demo/dist/chime/
+            cp -r $CHIME_DIR/* client/demo/public/chime/
+          else
+            echo "❌ 未能定位到 amazon-chime-sdk-js/libs/voicefocus 目录"
+            exit 1
+          fi
+
+      - name: 🔍 Verify Local Modifications & Assets
+        working-directory: voice-changer
+        run: |
+          echo "================ 1. 检查 VoiceChangerClient.ts 源码修改 ================"
+          if grep -q "assetGroup" client/lib/src/VoiceChangerClient.ts; then
+            echo "✅ TS 源码修改成功！包含了 assetGroup 配置。"
+          else
+            echo "❌ 错误：VoiceChangerClient.ts 中未检测到 assetGroup 修改！"
+            exit 1
+          fi
+
+          echo "================ 2. 检查 Chime 本地静态资源拷贝 ================"
+          if [ -n "$(find client/demo/dist/chime client/demo/public/chime -name 'estimator-v1.js' 2>/dev/null)" ]; then
+            echo "✅ Chime 静态资源成功拷贝到了本地 chime 目录！"
+            find client/demo/dist/chime client/demo/public/chime -name "estimator-v1.js"
+          else
+            echo "❌ 错误：未找到 estimator-v1.js 文件！"
+            exit 1
+          fi
+
       - name: 🌐 Build client demo
         working-directory: voice-changer/client/demo
         run: |
