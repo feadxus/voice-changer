@@ -62,25 +62,31 @@ jobs:
           npm install
           npm run build:prod
 
-      # 📁 构建期下载全套 Voice Focus 离线资源并打包
-      - name: 📁 Download & Package Chime Offline Assets
+      # 📁 100% 纯本地闭环：直接从本地依赖包搬运全套 Voice Focus 模型资产
+      - name: 📁 Package Chime Offline Assets From Node Modules
         working-directory: voice-changer
         run: |
-          # 1. 重置目录结构
+          # 1. 严格重置并创建符合 Chime SDK 预期的本地目录结构
           rm -rf client/demo/dist/chime client/demo/public/chime
-          mkdir -p client/demo/dist/chime/workers client/demo/public/chime/workers
+          mkdir -p client/demo/dist/chime/workers
+          mkdir -p client/demo/dist/chime/wasm
+          mkdir -p client/demo/public/chime/workers
+          mkdir -p client/demo/public/chime/wasm
 
-          # 2. 从 AWS 官方静态源抓取 4 大 Voice Focus 核心文件
-          BASE_URL="https://static.sdkassets.chime.aws"
-          
-          echo "⬇️ 开始下载 4 大 Voice Focus 核心离线文件..."
-          curl -sSL "$BASE_URL/workers/estimator-v1.js" -o client/demo/dist/chime/workers/estimator-v1.js
-          curl -sSL "$BASE_URL/workers/voicefocus-worker-v1.js" -o client/demo/dist/chime/workers/voicefocus-worker-v1.js
-          curl -sSL "$BASE_URL/wasm/voicefocus-v1.wasm" -o client/demo/dist/chime/voicefocus-v1.wasm
-          curl -sSL "$BASE_URL/wasm/voicefocus-v1-simd.wasm" -o client/demo/dist/chime/voicefocus-v1-simd.wasm
+          echo "📦 开始从本地 node_modules 提取完整的音频模型资产..."
 
-          # 3. 同步到 public 目录
+          # 2. 物理复制：直接把官方内置的所有后台 Worker 脚本搬运过来
+          # 包含: estimator-v1.js, voicefocus-worker-v1.js 等
+          cp -r client/demo/node_modules/amazon-chime-sdk-js/sys/workers/* client/demo/dist/chime/workers/
+
+          # 3. 物理复制：直接把官方内置的所有 WASM 核心以及你刚才下载失败的 .model 神经网络模型搬运过来
+          # 包含: voicefocus-v1.wasm, voicefocus-v1.json, voicefocus-v1.model, 以及 -simd 高级加速版本
+          cp -r client/demo/node_modules/amazon-chime-sdk-js/sys/wasm/* client/demo/dist/chime/wasm/
+
+          # 4. 同步到 public 目录，确保本地开发服务器启动时也能通过相对路径访问到
           cp -r client/demo/dist/chime/* client/demo/public/chime/
+
+          echo "✅ 资产搬运完成！"
 
       - name: 🔍 Verify Local Modifications & Assets
         working-directory: voice-changer
