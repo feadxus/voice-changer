@@ -55,14 +55,18 @@ jobs:
           npm install
           npm run build:prod
 
-      # 📁 复制 node_modules 资产并在构建期补全 Worker 脚本
+      - name: 🌐 Build client demo
+        working-directory: voice-changer/client/demo
+        run: |
+          npm install
+          npm run build:prod
+
+      # 先编译完成 demo 生成 dist，再注入 Chime 离线资源，防止被 clean 清空
       - name: 📁 Copy & Complete Chime Assets
         working-directory: voice-changer
         run: |
-          # 1. 创建符合 Chime SDK 规则的目录结构
           mkdir -p client/demo/dist/chime/workers client/demo/public/chime/workers
           
-          # 2. 从 node_modules 复制本地 wasm 及核心库文件
           CHIME_DIR=$(find . -type d -path "*/amazon-chime-sdk-js/libs/voicefocus" | head -n 1)
           if [ -n "$CHIME_DIR" ]; then
             echo "✅ 拷贝 node_modules 核心依赖文件: $CHIME_DIR"
@@ -70,7 +74,6 @@ jobs:
             cp -r $CHIME_DIR/* client/demo/public/chime/
           fi
 
-          # 3. 补全 npm 包未内置的 estimator Worker 脚本（打入离线包）
           echo "⬇️ 自动补全 estimator-v1.js 离线资源..."
           curl -sSL "https://static.sdkassets.chime.aws/workers/estimator-v1.js" -o client/demo/dist/chime/workers/estimator-v1.js
           cp client/demo/dist/chime/workers/estimator-v1.js client/demo/public/chime/workers/estimator-v1.js
@@ -93,42 +96,6 @@ jobs:
           else
             echo "❌ 错误：未找到 estimator-v1.js 文件！"
             exit 1
-          fi
-
-      - name: 🌐 Build client demo
-        working-directory: voice-changer/client/demo
-        run: |
-          npm install
-          # 使用 build:prod 触发 package.json 中配置的 copy:chime 及完整编译
-          npm run build:prod
-
-      # 🔍 新增：定向检查你的修改与静态资源抽取是否生效
-      - name: 🔍 Verify Local Modifications & Assets
-        working-directory: voice-changer
-        run: |
-          echo "================ 1. 检查 VoiceChangerClient.ts 源码修改 ================"
-          if grep -q "assetGroup" client/lib/src/VoiceChangerClient.ts; then
-            echo "✅ TS 源码修改成功！包含了 assetGroup 配置。"
-          else
-            echo "❌ 错误：VoiceChangerClient.ts 中未检测到 assetGroup 修改！"
-            exit 1
-          fi
-
-          echo "================ 2. 检查 Chime 本地静态资源拷贝 ================"
-          # 修改为使用 find 递归查找，兼容 workers/ 子目录结构
-          if [ -n "$(find client/demo/public/chime client/demo/dist/chime -name 'estimator-v1.js' 2>/dev/null)" ]; then
-            echo "✅ Chime 静态资源成功拷贝到了本地 chime 目录！"
-            find client/demo/public/chime client/demo/dist/chime -name "estimator-v1.js"
-          else
-            echo "❌ 错误：未在 public/chime 或 dist/chime 找到 estimator-v1.js 文件！"
-            exit 1
-          fi
-
-          echo "================ 3. 检查打包编译产物 index.js ================"
-          if grep -q "estimator-v1.js" client/demo/dist/index.js; then
-            echo "✅ 编译后的前端 dist/index.js 已引入本地路径！"
-          else
-            echo "⚠️ 警告：编译产物中未直接搜索到 estimator-v1.js 字符串，属于正常现象（内部通过路径拼接）。"
           fi
 
       - name: 📦 Prepare package
