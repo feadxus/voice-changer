@@ -7,6 +7,7 @@
         "lib": "lib"
     },
     "scripts": {
+        "postinstall": "node download-chime-assets.js", // 👈 核心新增::安装依赖后自动下载离线资产
         "clean:worklet": "rimraf worklet/dist/",
         "webpack:worklet:dev": "webpack --config webpack.worklet.dev.js",
         "webpack:worklet:prod": "webpack --config webpack.worklet.prod.js",
