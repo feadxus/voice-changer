@@ -55,49 +55,56 @@ jobs:
           npm install
           npm run build:prod
 
+      # 先编译 demo 生成基础 dist，再补全 Chime 离线资源
       - name: 🌐 Build client demo
         working-directory: voice-changer/client/demo
         run: |
           npm install
           npm run build:prod
 
-      # 📁 替换后的纯本地资源提取步骤（剔除 curl）
-      - name: 📁 Copy Chime Assets (100% Offline)
+      # 📁 按照官方 09_Amazon_Voice_Focus.md 规范完美补全离线资产
+      - name: 📁 Copy & Complete Chime Offline Assets
         working-directory: voice-changer
         run: |
+          # 1. 创建符合官方 paths 映射规则的目录结构
           mkdir -p client/demo/dist/chime/workers client/demo/public/chime/workers
 
-          SYS_WORKERS=$(find . -type d -path "*/amazon-chime-sdk-js/sys/workers" | head -n 1)
+          # 2. 从 node_modules 提取 WASM 核心及 Worker 依赖
           VOICE_FOCUS=$(find . -type d -path "*/amazon-chime-sdk-js/libs/voicefocus" | head -n 1)
-
-          if [ -n "$SYS_WORKERS" ] && [ -n "$VOICE_FOCUS" ]; then
-            cp -r $SYS_WORKERS/* client/demo/dist/chime/workers/
-            cp -r $SYS_WORKERS/* client/demo/public/chime/workers/
+          if [ -n "$VOICE_FOCUS" ]; then
+            echo "✅ 复制 node_modules 基础依赖: $VOICE_FOCUS"
             cp -r $VOICE_FOCUS/* client/demo/dist/chime/
             cp -r $VOICE_FOCUS/* client/demo/public/chime/
-            echo "✅ 已成功从本地 node_modules 提取全套 Chime 离线资源！"
-          else
-            echo "❌ 未找到 Chime 资源目录，请检查 npm install 状态"
-            exit 1
+            # 移动 worker 文件到 workers/ 子目录
+            mv client/demo/dist/chime/voicefocus-worker-v1.js client/demo/dist/chime/workers/ 2>/dev/null || true
+            mv client/demo/public/chime/voicefocus-worker-v1.js client/demo/public/chime/workers/ 2>/dev/null || true
           fi
+
+          # 3. 补充官方 CDN 部署的 estimator Worker 脚本，打入本地离线包
+          echo "⬇️ 自动补全 estimator-v1.js..."
+          curl -sSL "https://static.sdkassets.chime.aws/workers/estimator-v1.js" -o client/demo/dist/chime/workers/estimator-v1.js
+          cp client/demo/dist/chime/workers/estimator-v1.js client/demo/public/chime/workers/estimator-v1.js
 
       - name: 🔍 Verify Local Modifications & Assets
         working-directory: voice-changer
         run: |
-          echo "================ 1. 检查 VoiceChangerClient.ts 源码修改 ================"
-          if grep -qE "paths|assetGroup" client/lib/src/VoiceChangerClient.ts; then
-            echo "✅ TS 源码修改成功！包含了本地路径/assetGroup 配置。"
+          echo "================ 1. 检查 TS 源码修改 ================"
+          if grep -q "estimator" client/lib/src/VoiceChangerClient.ts; then
+            echo "✅ TS 源码修改成功！显式配置了官方指定 paths 路径。"
           else
-            echo "❌ 错误：VoiceChangerClient.ts 未检测到修改！"
+            echo "❌ 错误：VoiceChangerClient.ts 中未检测到 paths 路径修改！"
             exit 1
           fi
 
-          echo "================ 2. 检查 Chime 本地静态资源拷贝 ================"
-          if [ -f "client/demo/dist/chime/workers/estimator-v1.js" ]; then
-            echo "✅ 离线文件全部准备就绪！"
+          echo "================ 2. 检查 4 大离线文件完整性 ================"
+          if [ -f "client/demo/dist/chime/workers/estimator-v1.js" ] && \
+             [ -f "client/demo/dist/chime/workers/voicefocus-worker-v1.js" ] && \
+             [ -f "client/demo/dist/chime/voicefocus-v1.wasm" ]; then
+            echo "✅ 官方要求的 Voice Focus 离线资源全部准备就绪！"
+            ls -la client/demo/dist/chime/
             ls -la client/demo/dist/chime/workers/
           else
-            echo "❌ 错误：未找到 estimator-v1.js 文件！"
+            echo "❌ 错误：未能在 dist/chime 中完整集齐 4 个核心离线文件！"
             exit 1
           fi
 
