@@ -1,0 +1,127 @@
+name: Build Voice Changer Offline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: 📦 Checkout Workflow Repo
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 🔧 Install System Packages
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            ffmpeg \
+            espeak \
+            libsndfile1-dev \
+            git
+
+      - name: 📥 Clone voice changer
+        run: |
+          git clone \
+            -b master \
+            https://github.com/feadxus/voice-changer.git
+
+      - name: 📦 Install Python deps
+        working-directory: voice-changer/server
+        run: |
+          python -m pip install --upgrade pip==23.2.1
+          pip install setuptools==65.5.0 wheel
+          pip install numpy==1.23.5
+          pip install omegaconf==2.0.6
+          pip install hydra-core==1.0.7
+          pip install fairseq==0.12.2 --no-deps
+          pip install pyworld==0.3.3
+          pip install -r requirements.txt
+          pip cache purge
+
+      - name: 🌐 Build client lib
+        working-directory: voice-changer/client/lib
+        run: |
+          npm install
+          npm run build:prod
+
+      - name: 🌐 Build client demo
+        working-directory: voice-changer/client/demo
+        run: |
+          npm install
+          # 使用 build:prod 触发 package.json 中配置的 copy:chime 及完整编译
+          npm run build:prod
+
+      # 🔍 新增：定向检查你的修改与静态资源抽取是否生效
+      - name: 🔍 Verify Local Modifications & Assets
+        working-directory: voice-changer
+        run: |
+          echo "================ 1. 检查 VoiceChangerClient.ts 源码修改 ================"
+          if grep -q "assetGroup" client/lib/src/VoiceChangerClient.ts; then
+            echo "✅ TS 源码修改成功！包含了 assetGroup 配置。"
+          else
+            echo "❌ 错误：VoiceChangerClient.ts 中未检测到 assetGroup 修改！"
+            exit 1
+          fi
+
+          echo "================ 2. 检查 Chime 本地静态资源拷贝 ================"
+          if [ -f "client/demo/public/chime/estimator-v1.js" ] || [ -f "client/demo/dist/chime/estimator-v1.js" ]; then
+            echo "✅ Chime 静态资源成功拷贝到了本地 chime 目录！"
+            ls -la client/demo/public/chime/ || ls -la client/demo/dist/chime/
+          else
+            echo "❌ 错误：未在 public/chime 或 dist/chime 找到 estimator-v1.js 文件！"
+            exit 1
+          fi
+
+          echo "================ 3. 检查打包编译产物 index.js ================"
+          if grep -q "estimator-v1.js" client/demo/dist/index.js; then
+            echo "✅ 编译后的前端 dist/index.js 已引入本地路径！"
+          else
+            echo "⚠️ 警告：编译产物中未搜到 estimator-v1.js 字符串，请确认编译是否包含了最新的 client/lib！"
+          fi
+
+      - name: 📦 Prepare package
+        run: |
+          mkdir release
+          cp -r voice-changer release/
+
+      - name: 🗜️ Compress
+        run: |
+          tar -cf voice-changer.tar release
+          xz -T0 -9e voice-changer.tar
+
+      - name: 📤 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: voice-changer
+          path: voice-changer.tar.xz
+
+      - name: ☁️ Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+
+      - name: 🔑 rclone config
+        env:
+          RCLONE_SECRET_DATA: ${{ secrets.GOOGLE_FEADXUS_DRIVE }}
+        run: |
+          mkdir -p ~/.config/rclone
+          echo "$RCLONE_SECRET_DATA" > ~/.config/rclone/rclone.conf
+
+      - name: 🚀 Upload Drive
+        run: |
+          rclone mkdir feadxus-Google-Drive:/voice-changer
+          rclone copy voice-changer.tar.xz feadxus-Google-Drive:/voice-changer/
+
+      - name: ✅ Verify Upload
+        run: |
+          rclone lsf feadxus-Google-Drive:/voice-changer/
