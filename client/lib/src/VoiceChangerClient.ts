@@ -82,7 +82,7 @@ export class VoiceChangerClient {
                 this.vf = await VoiceFocusDeviceTransformer.create({ 
                     variant: "c20",
                     paths: {
-                        processorWorker: "/chime/workers/estimator-v1.js",
+                        estimator: "/chime/workers/estimator-v1.js",
                         worker: "/chime/workers/voicefocus-worker-v1.js",
                         wasm: "/chime/voicefocus-v1.wasm",
                         simdWasm: "/chime/voicefocus-v1-simd.wasm",
