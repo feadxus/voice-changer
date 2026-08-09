@@ -55,23 +55,25 @@ jobs:
           npm install
           npm run build:prod
 
-
-
-      # ➕ 新增：自动精准搜索 node_modules 中的 Chime 资源并一键同步到产物目录
-      - name: 📁 Copy Chime Assets
+      # 📁 复制 node_modules 资产并在构建期补全 Worker 脚本
+      - name: 📁 Copy & Complete Chime Assets
         working-directory: voice-changer
         run: |
-          mkdir -p client/demo/dist/chime client/demo/public/chime
-          # 自动在 node_modules 中定位 voicefocus 资源目录
+          # 1. 创建符合 Chime SDK 规则的目录结构
+          mkdir -p client/demo/dist/chime/workers client/demo/public/chime/workers
+          
+          # 2. 从 node_modules 复制本地 wasm 及核心库文件
           CHIME_DIR=$(find . -type d -path "*/amazon-chime-sdk-js/libs/voicefocus" | head -n 1)
           if [ -n "$CHIME_DIR" ]; then
-            echo "✅ 找到了 Chime 静态资源路径: $CHIME_DIR"
+            echo "✅ 拷贝 node_modules 核心依赖文件: $CHIME_DIR"
             cp -r $CHIME_DIR/* client/demo/dist/chime/
             cp -r $CHIME_DIR/* client/demo/public/chime/
-          else
-            echo "❌ 未能定位到 amazon-chime-sdk-js/libs/voicefocus 目录"
-            exit 1
           fi
+
+          # 3. 补全 npm 包未内置的 estimator Worker 脚本（打入离线包）
+          echo "⬇️ 自动补全 estimator-v1.js 离线资源..."
+          curl -sSL "https://static.sdkassets.chime.aws/workers/estimator-v1.js" -o client/demo/dist/chime/workers/estimator-v1.js
+          cp client/demo/dist/chime/workers/estimator-v1.js client/demo/public/chime/workers/estimator-v1.js
 
       - name: 🔍 Verify Local Modifications & Assets
         working-directory: voice-changer
@@ -80,20 +82,18 @@ jobs:
           if grep -q "assetGroup" client/lib/src/VoiceChangerClient.ts; then
             echo "✅ TS 源码修改成功！包含了 assetGroup 配置。"
           else
-            echo "❌ 错误：VoiceChangerClient.ts 中未检测到 assetGroup 修改！"
+            echo "❌ 错误：VoiceChangerClient.ts 未检测到修改！"
             exit 1
           fi
 
           echo "================ 2. 检查 Chime 本地静态资源拷贝 ================"
-          if [ -n "$(find client/demo/dist/chime client/demo/public/chime -name 'estimator-v1.js' 2>/dev/null)" ]; then
-            echo "✅ Chime 静态资源成功拷贝到了本地 chime 目录！"
-            find client/demo/dist/chime client/demo/public/chime -name "estimator-v1.js"
+          if [ -f "client/demo/dist/chime/workers/estimator-v1.js" ]; then
+            echo "✅ 离线文件全部准备就绪！"
+            ls -la client/demo/dist/chime/workers/
           else
             echo "❌ 错误：未找到 estimator-v1.js 文件！"
             exit 1
           fi
-
-
 
       - name: 🌐 Build client demo
         working-directory: voice-changer/client/demo
