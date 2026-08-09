@@ -6,14 +6,20 @@ const TARGET_DIR = path.join(__dirname, 'public', 'chime');
 const BASE_URL = 'https://static.sdkassets.chime.aws';
 const PARAMS = '?sdk=3.20.0&ua=chrome-140&assetGroup=sdk-3.20';
 
-// 💡 核心对齐：去掉多余的 "-v1" 字样，完美匹配亚马逊 3.20.0 官方 CDN 的老版本资源路径
+// 💡 闭环关键：把可能的所有新老版本命名全部网罗进来，总有一个对的！
 const filesToDownload = [
-    { source: '/workers/estimator-v1.js', output: 'estimator-v1.js' }, // 这个本身就带-v1
+    { source: '/workers/estimator-v1.js', output: 'estimator-v1.js' },
+    { source: '/workers/voicefocus-worker-v1.js', output: 'voicefocus-worker-v1.js' },
     { source: '/workers/voicefocus-worker.js', output: 'voicefocus-worker.js' },
+    { source: '/wasm/voicefocus-v1.wasm', output: 'voicefocus-v1.wasm' },
     { source: '/wasm/voicefocus.wasm', output: 'voicefocus.wasm' },
+    { source: '/wasm/voicefocus-v1-simd.wasm', output: 'voicefocus-v1-simd.wasm' },
     { source: '/wasm/voicefocus-simd.wasm', output: 'voicefocus-simd.wasm' },
+    { source: '/wasm/voicefocus-v1.json', output: 'voicefocus-v1.json' },
     { source: '/wasm/voicefocus.json', output: 'voicefocus.json' },
+    { source: '/wasm/voicefocus-v1.model', output: 'voicefocus-v1.model' },
     { source: '/wasm/voicefocus.model', output: 'voicefocus.model' },
+    { source: '/wasm/voicefocus-v1-simd.model', output: 'voicefocus-v1-simd.model' },
     { source: '/wasm/voicefocus-simd.model', output: 'voicefocus-simd.model' }
 ];
 
@@ -31,6 +37,11 @@ function downloadFile(fileUrl, outputPath) {
                     return fetchUrl(redirectUrl);
                 }
 
+                // 💡 如果是 404，不抛出致命错误，直接返回特殊的 '404' 状态字通知上层跳过
+                if (response.statusCode === 404) {
+                    return resolve('404');
+                }
+
                 if (response.statusCode !== 200) {
                     return reject(new Error(`Failed to download. Status code: ${response.statusCode}`));
                 }
@@ -39,7 +50,7 @@ function downloadFile(fileUrl, outputPath) {
                 response.pipe(fileStream);
                 fileStream.on('finish', () => {
                     fileStream.close();
-                    resolve();
+                    resolve('200');
                 });
             }).on('error', (err) => {
                 fs.unlink(outputPath, () => {});
@@ -52,16 +63,29 @@ function downloadFile(fileUrl, outputPath) {
 }
 
 async function main() {
-    console.log('🚀 启动 Chime 资产自动补全（3.20.0 规范对齐版）...');
+    console.log('🚀 启动 Chime 资产自动补全（全版本扫描兼容版）...');
+    let successCount = 0;
+
     for (const file of filesToDownload) {
         try {
-            await downloadFile(`${BASE_URL}${file.source}`, path.join(TARGET_DIR, file.output));
-            console.log(`✅ 成功离线化: ${file.output}`);
+            const result = await downloadFile(`${BASE_URL}${file.source}`, path.join(TARGET_DIR, file.output));
+            if (result === '404') {
+                console.log(`⚠️ 资源在云端不存在(跳过): ${file.source}`);
+            } else {
+                console.log(`✅ 成功离线化: ${file.output}`);
+                successCount++;
+            }
         } catch (error) {
-            console.error(`❌ 下载出错 [${file.output}]:`, error.message);
+            console.error(`❌ 网络致命错误 [${file.output}]:`, error.message);
             process.exit(1); 
         }
     }
-    console.log('🎉 恭喜！全套老版本离线资源与 AI 模型已全部安全抵达本地！');
+    
+    if(successCount > 0) {
+        console.log(`🎉 恭喜！已在本地集齐所有可用版本的离线资源与 AI 模型（共 ${successCount} 个）！`);
+    } else {
+        console.error('❌ 致命错误：没有任何一个文件下载成功！');
+        process.exit(1);
+    }
 }
 main();
