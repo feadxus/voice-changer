@@ -55,6 +55,8 @@ jobs:
           npm install
           npm run build:prod
 
+
+
       # ➕ 新增：自动精准搜索 node_modules 中的 Chime 资源并一键同步到产物目录
       - name: 📁 Copy Chime Assets
         working-directory: voice-changer
@@ -90,6 +92,8 @@ jobs:
             echo "❌ 错误：未找到 estimator-v1.js 文件！"
             exit 1
           fi
+
+
 
       - name: 🌐 Build client demo
         working-directory: voice-changer/client/demo
